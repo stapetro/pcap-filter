@@ -5,4 +5,4 @@ error message "Access restriction: The type NetworkInterface is not accessible d
 
 Resolution:
 Eclipse Configuration:
-Windows -> Preferences -> Java -> Compiler -> Errors/Warnings -> Deprecated and trstricted API -> Forbidden reference (access rules): -> change to warning
+Windows -> Preferences -> Java -> Compiler -> Errors/Warnings -> Deprecated and restricted API -> Forbidden reference (access rules): -> change to warning
