@@ -1,0 +1,8 @@
+﻿SVN address: https://pcap-filter.googlecode.com/svn/trunk
+
+Problem: 
+error message "Access restriction: The type NetworkInterface is not accessible due to restriction on required library C:\Program Files\Java\jre6\lib\ext\jpcap.jar"
+
+Resolution:
+Eclipse Configuration:
+Windows -> Preferences -> Java -> Compiler -> Errors/Warnings -> Deprecated and trstricted API -> Forbidden reference (access rules): -> change to warning
