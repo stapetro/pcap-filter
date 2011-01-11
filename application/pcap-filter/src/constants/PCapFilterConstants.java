@@ -9,6 +9,6 @@ public class PCapFilterConstants {
 	/**
 	 * Filter rules for IP/TCCP traffic.
 	 */
-	public static final String IP_TCP_FILTER = "ip and tcp";
+	public static final String TCP_IP_FILTER = "ip and tcp";
 
 }
