@@ -13,7 +13,10 @@ import jpcap.packet.Packet;
 
 public class NetworkInterfacePacketReader implements IPacketReader {
 
+	private String packetFilterRule;
 	private JpcapCaptor captor;
+	private boolean readFromFile;
+
 	private NetworkInterfacePacketReceiver packetReceiver;
 
 	private NetworkInterfacePacketReader() {
@@ -25,67 +28,82 @@ public class NetworkInterfacePacketReader implements IPacketReader {
 		try {
 			captor = JpcapCaptor.openDevice(networkInterface, 65535, false, 0);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	public NetworkInterfacePacketReader(String fileName) {
 		this();
+		this.readFromFile = true;
 		try {
 			captor = JpcapCaptor.openFile(fileName);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public JpcapCaptor getCaptor() {
+		return captor;
 	}
 
 	public List<Packet> getPackets() {
 		return this.packetReceiver.getReceivedPackets();
 	}
 
+	public String getPacketFilterRule() {
+		return packetFilterRule;
+	}
+
+	public void setPacketFilterRule(String packetFilterRule) {
+		this.packetFilterRule = packetFilterRule;
+	}
+
 	public void startReadingPackets() {
 		if (this.captor != null) {
 			try {
-				captor.setFilter(PCapFilterConstants.IP_TCP_FILTER, true);
-				captor.processPacket(10, packetReceiver);
-				// Loops packet sniffing infinitely
-				// captor.loopPacket(-1, packetReceiver);
-
-				// if (packetReceiver != null) {
-				// JpcapWriter writer = null;
-				// try {
-				// writer = JpcapWriter.openDumpFile(captor,
-				// "stas_captured.txt");
-				// List<Packet> output = packetReceiver.getReceivedPackets();
-				// for (Packet currPacket : output) {
-				// // System.out.printf("%n%s%n%n", currPacket.toString());
-				// writer.writePacket(currPacket);
-				// }
-				// System.out.println("Packets are saved successfully");
-				// } catch (IOException e) {
-				// // TODO Auto-generated catch block
-				// e.printStackTrace();
-				// System.out.println("Packets are not saved due to error");
-				// }
-				// finally {
-				// if(writer != null) {
-				// writer.close();
-				// }
-				// }
-				// }
+				if (packetFilterRule != null) {
+					captor.setFilter(this.packetFilterRule, true);
+				}
+				if (this.readFromFile) {
+					readPacketsFromFile();
+				} else {
+					captor.processPacket(5, packetReceiver);
+					// Loops packet sniffing infinitely
+					// captor.loopPacket(-1, packetReceiver);
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
-			} finally {
-				if (captor != null) {
-					captor.close();
-				}
 			}
 		}
 	}
 
 	public Packet readPacket() {
+		// TODO To be implemented.
 		return null;
+	}
+
+	@Override
+	public void close() {
+		if (captor != null) {
+			captor.close();
+		}
+	}
+
+	/**
+	 * Reads packets from file.
+	 */
+	private void readPacketsFromFile() {
+		Packet packet = null;
+		while (true) {
+			// read a packet from the opened file
+			packet = captor.getPacket();
+			// if some error occurred or EOF has reached, break the loop
+			if (packet == null || packet == Packet.EOF) {
+				break;
+			}
+			// otherwise, print out the packet
+			System.out.println(packet);
+		}
 	}
 
 }
