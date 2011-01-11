@@ -6,4 +6,6 @@ public interface IPacketWriter {
 
 	public void writePacket(Packet packet);
 	
+	public void close();
+	
 }
