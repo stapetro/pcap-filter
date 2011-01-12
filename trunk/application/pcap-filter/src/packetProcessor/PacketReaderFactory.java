@@ -17,18 +17,18 @@ public class PacketReaderFactory {
 	 */
 	public static IPacketReader getPacketReader(Object source,
 			String packetFilterRule) {
-		NetworkInterfacePacketReader packetReader = null;
 		if (source instanceof String) {
 			String fileName = (String) source;
-			packetReader = new NetworkInterfacePacketReader(fileName);
-			packetReader.setPacketFilterRule(packetFilterRule);
+			FilePacketReader filePacketReader = new FilePacketReader(fileName,
+					packetFilterRule);
+			return filePacketReader;
 
 		} else if (source instanceof NetworkInterface) {
 			NetworkInterface networkInterface = (NetworkInterface) source;
-			packetReader = new NetworkInterfacePacketReader(networkInterface);
-			packetReader.setPacketFilterRule(packetFilterRule);
+			NetworkInterfacePacketReader networkInterfacePacketReader = new NetworkInterfacePacketReader(networkInterface, packetFilterRule);
+			return networkInterfacePacketReader;
 		}
-		return packetReader;
+		return null;
 	}
 
 }
