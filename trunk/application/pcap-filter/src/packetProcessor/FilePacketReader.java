@@ -7,7 +7,7 @@ import java.util.List;
 import jpcap.JpcapCaptor;
 import jpcap.packet.Packet;
 
-public class FilePacketReader extends AbstractPacketReader {
+public class FilePacketReader extends AbstractPacketReader implements Runnable {
 
 	private List<Packet> packetsList;
 
@@ -25,6 +25,24 @@ public class FilePacketReader extends AbstractPacketReader {
 
 	@Override
 	public void startReadingPackets() {
+		Thread thread = new Thread(this);
+		thread.start();
+		Thread.yield();
+	}
+
+	public Packet readPacket() {
+		return null;
+		// TODO implement
+	}
+
+	@Override
+	public List<Packet> getPackets() {
+		// TODO think if we should keep this
+		return packetsList;
+	}
+
+	@Override
+	public void run() {
 		JpcapCaptor captor = getCaptor();
 		if (captor != null) {
 			Packet packet = null;
@@ -43,18 +61,8 @@ public class FilePacketReader extends AbstractPacketReader {
 			System.out.println("Received packs: " + captor.received_packets
 					+ ", Dropped packs: " + captor.dropped_packets
 					+ " Captured: " + capturedPacks);
-		}
-	}
-
-	public Packet readPacket() {
-		return null;
-		// TODO implement
-	}
-
-	@Override
-	public List<Packet> getPackets() {
-		// TODO think if we should keep this
-		return packetsList;
+			captor.close();
+		}		
 	}
 
 }
