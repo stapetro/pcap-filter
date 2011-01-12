@@ -31,7 +31,6 @@ public class FilePacketReader extends AbstractPacketReader {
 					break;
 				}
 				// otherwise, print out the packet
-				System.out.println(packet);
 			}
 		}
 	}
