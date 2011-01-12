@@ -16,7 +16,7 @@ public class FilePacketReader extends AbstractPacketReader {
 			JpcapCaptor captor = JpcapCaptor.openFile(fileName);
 			setCaptor(captor);
 			setPacketFilterRule(packetFilterRule);
-			
+
 			packetsList = new LinkedList<Packet>();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -28,6 +28,7 @@ public class FilePacketReader extends AbstractPacketReader {
 		JpcapCaptor captor = getCaptor();
 		if (captor != null) {
 			Packet packet = null;
+			int capturedPacks = 0;
 			while (true) {
 				// read a packet from the opened file
 				packet = captor.getPacket();
@@ -36,7 +37,12 @@ public class FilePacketReader extends AbstractPacketReader {
 					break;
 				}
 				packetsList.add(packet);
+				capturedPacks++;
 			}
+			captor.updateStat();
+			System.out.println("Received packs: " + captor.received_packets
+					+ ", Dropped packs: " + captor.dropped_packets
+					+ " Captured: " + capturedPacks);
 		}
 	}
 
@@ -47,7 +53,7 @@ public class FilePacketReader extends AbstractPacketReader {
 
 	@Override
 	public List<Packet> getPackets() {
-		//TODO think if we should keep this
+		// TODO think if we should keep this
 		return packetsList;
 	}
 

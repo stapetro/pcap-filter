@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 
-import manipulator.SipManager;
-
 import jpcap.JpcapCaptor;
 import jpcap.NetworkInterface;
 import jpcap.packet.Packet;
+import manipulator.SipManager;
 import packetProcessor.IPacketReader;
+import packetProcessor.IPacketWriter;
 import packetProcessor.PacketReaderFactory;
 import constants.PCapFilterConstants;
 
@@ -27,38 +27,37 @@ public class PCapFilterStarter {
 	 */
 	public static void main(String[] args) {
 		/**** Stanislav Petrov Code *****/
-		//
-		// String outputSipFile = "sip_session_captured.jpcap";
-		// // String outputSipFile = "test_packets";
-		// int deviceIndex = 1;
-		//
-		// // Obtain the list of network interfaces
-		// NetworkInterface[] devices = JpcapCaptor.getDeviceList();
-		// NetworkInterface wanInterface = devices[deviceIndex];
-		// // IPacketReader interfacePacketReader = PacketReaderFactory
-		// // .getPacketReader(wanInterface, PCapFilterConstants.SIP_FILTER);
-		// IPacketReader interfacePacketReader = PacketReaderFactory
-		// .getPacketReader(outputSipFile, PCapFilterConstants.SIP_FILTER);
-		//
+
+		int timeOutInSec = 5;
+		String outputSipFile = "sip_session_captured.jpcap";
+
+//		NetworkInterface chosenInterface = chooseDevice();
+//		IPacketReader interfacePacketReader = PacketReaderFactory
+//				.getPacketReader(chosenInterface,
+//						PCapFilterConstants.TCP_IP_FILTER,
+//						(timeOutInSec * 1000L));
+		 IPacketReader interfacePacketReader = PacketReaderFactory
+		 .getPacketReader(outputSipFile, PCapFilterConstants.SIP_FILTER, (timeOutInSec * 1000L));
+
+		System.out.println("Start listening for packets...");
 		// System.out.println("Start listening for packets...");
-		// interfacePacketReader.startReadingPackets();
-		// System.out.println("Finish listening for packets...");
-		// JpcapCaptor captor = interfacePacketReader.getCaptor();
-		// IPacketWriter packetWriter = null;
+		interfacePacketReader.startReadingPackets();
+		JpcapCaptor captor = interfacePacketReader.getCaptor();
+		IPacketWriter packetWriter = null;
 		// try {
-		// // JpcapWriter writer = JpcapWriter
-		// // .openDumpFile(captor, outputSipFile);
-		// // packetWriter = PacketWriterFactory.getPacketWriter(writer);
-		// // Reading of packets shouldn't be here.
+		// JpcapWriter writer = JpcapWriter
+		// .openDumpFile(captor, outputSipFile);
+		// packetWriter = PacketWriterFactory.getPacketWriter(writer);
+		// Reading of packets shouldn't be here.
 		// List<Packet> packets = interfacePacketReader.getPackets();
 		// if (packets != null) {
 		// for (Packet currPacket : packets) {
-		// // packetWriter.writePacket(currPacket);
-		// // System.out.println(currPacket);
+		// packetWriter.writePacket(currPacket);
+		// System.out.println(currPacket);
 		// }
 		// }
-		// // } catch (IOException e) {
-		// // e.printStackTrace();
+		// } catch (IOException e) {
+		// e.printStackTrace();
 		// } finally {
 		// if (packetWriter != null) {
 		// packetWriter.close();
@@ -67,30 +66,23 @@ public class PCapFilterStarter {
 		// interfacePacketReader.close();
 
 		/**** Krasimir Baylov Code *****/
-		String outputSipFile = "sip_session_captured.jpcap";
-
-		IPacketReader interfacePacketReader = PacketReaderFactory
-				.getPacketReader(outputSipFile, PCapFilterConstants.SIP_FILTER);
-
-		//System.out.println("Start listening for packets...");
-		interfacePacketReader.startReadingPackets();
-		//System.out.println("Finish listening for packets...");
 		try {
 			List<Packet> packets = interfacePacketReader.getPackets();
-			
+
 			Properties prop = new Properties();
 			prop.load(new FileInputStream("SIP_MASK.properties"));
 
 			SipManager sipManager = new SipManager(prop);
-			
+
 			if (packets != null) {
 				for (Packet currPacket : packets) {
 					System.out.println("-----\n old:");
 					System.out.print(new String(currPacket.data));
-					byte[] modifiedSipPacket = sipManager.modifyPacket(currPacket.data);
-					
+					byte[] modifiedSipPacket = sipManager
+							.modifyPacket(currPacket.data);
+
 					System.out.println("-----\n new: ");
-					
+
 					System.out.print(new String(modifiedSipPacket));
 					System.out.println("-----");
 				}
@@ -101,8 +93,6 @@ public class PCapFilterStarter {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		interfacePacketReader.close();
-
 	}
 
 	private static NetworkInterface chooseDevice() {
