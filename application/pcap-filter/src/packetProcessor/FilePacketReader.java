@@ -6,18 +6,13 @@ import java.util.List;
 import jpcap.JpcapCaptor;
 import jpcap.packet.Packet;
 
-public class FilePacketReader implements IPacketReader {
-
-	private String packetFilterRule;
-	private JpcapCaptor captor;
+public class FilePacketReader extends AbstractPacketReader {
 
 	public FilePacketReader(String fileName, String packetFilterRule) {
 		try {
-			captor = JpcapCaptor.openFile(fileName);
-			if (packetFilterRule != null) {
-				this.packetFilterRule = packetFilterRule;
-				captor.setFilter(packetFilterRule, true);
-			}
+			JpcapCaptor captor = JpcapCaptor.openFile(fileName);
+			setCaptor(captor);
+			setPacketFilterRule(packetFilterRule);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -25,7 +20,8 @@ public class FilePacketReader implements IPacketReader {
 
 	@Override
 	public void startReadingPackets() {
-		if (this.captor != null) {
+		JpcapCaptor captor = getCaptor();
+		if (captor != null) {
 			Packet packet = null;
 			while (true) {
 				// read a packet from the opened file
@@ -43,18 +39,6 @@ public class FilePacketReader implements IPacketReader {
 	public Packet readPacket() {
 		return null;
 		// TODO implement
-	}
-
-	@Override
-	public void close() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public JpcapCaptor getCaptor() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
