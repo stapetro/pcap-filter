@@ -1,6 +1,7 @@
 package packetProcessor;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 import jpcap.JpcapCaptor;
@@ -8,11 +9,15 @@ import jpcap.packet.Packet;
 
 public class FilePacketReader extends AbstractPacketReader {
 
+	private List<Packet> packetsList;
+
 	public FilePacketReader(String fileName, String packetFilterRule) {
 		try {
 			JpcapCaptor captor = JpcapCaptor.openFile(fileName);
 			setCaptor(captor);
 			setPacketFilterRule(packetFilterRule);
+			
+			packetsList = new LinkedList<Packet>();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -30,7 +35,7 @@ public class FilePacketReader extends AbstractPacketReader {
 				if (packet == null || packet == Packet.EOF) {
 					break;
 				}
-				// otherwise, print out the packet
+				packetsList.add(packet);
 			}
 		}
 	}
@@ -42,8 +47,8 @@ public class FilePacketReader extends AbstractPacketReader {
 
 	@Override
 	public List<Packet> getPackets() {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO think if we should keep this
+		return packetsList;
 	}
 
 }
