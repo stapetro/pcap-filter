@@ -58,4 +58,10 @@ public class NetworkSession {
 		return result;
 	}
 
+	@Override
+	public String toString() {
+		return "src: " + sourceIPAddr + ", dest: " + destIPAddr + ", srcPort: "
+				+ sourcePort + ", dest: " + destPort;
+	}
+
 }

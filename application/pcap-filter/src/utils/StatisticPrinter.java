@@ -22,9 +22,9 @@ public class StatisticPrinter {
 					+ currentSession.getDestPort() + ")\nPackets: "
 					+ currentSession.getNumberOfPackets() + "\n");
 		}
-		statistics.append("Caputed: " + numberOfCapturedPackets + " received: "
+		statistics.append("Caputed: " + numberOfCapturedPackets/* + " received: "
 				+ captor.received_packets + " dropped:"
-				+ captor.dropped_packets + "\n");
+				+ captor.dropped_packets + "\n"*/);
 		System.out.println(statistics);
 	}
 }

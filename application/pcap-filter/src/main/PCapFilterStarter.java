@@ -33,11 +33,11 @@ public class PCapFilterStarter {
 		String outputSipFile = "sip_session_captured.jpcap";
 
 		NetworkInterface chosenInterface = chooseDevice();
-		IPacketReader interfacePacketReader = PacketReaderFactory
-				.getPacketReader(chosenInterface,
-						PCapFilterConstants.TCP_IP_FILTER);
-//		 IPacketReader interfacePacketReader = PacketReaderFactory
-//		 .getPacketReader(outputSipFile, PCapFilterConstants.SIP_FILTER, (timeOutInSec * 1000L));
+		 IPacketReader interfacePacketReader = PacketReaderFactory
+		 .getPacketReader(chosenInterface,
+		 PCapFilterConstants.TCP_IP_FILTER);
+//		IPacketReader interfacePacketReader = PacketReaderFactory
+//				.getPacketReader(outputSipFile, PCapFilterConstants.SIP_FILTER);
 
 		System.out.println("Start listening for packets...");
 		// System.out.println("Start listening for packets...");
@@ -47,7 +47,7 @@ public class PCapFilterStarter {
 		Scanner input = new Scanner(System.in);
 		System.out.print("Enter sth to stop: ");
 		String line = input.nextLine();
-		interfacePacketReader.stopReadingPackets();		
+		interfacePacketReader.stopReadingPackets();
 		// try {
 		// JpcapWriter writer = JpcapWriter
 		// .openDumpFile(captor, outputSipFile);
@@ -70,33 +70,33 @@ public class PCapFilterStarter {
 		// interfacePacketReader.close();
 
 		/**** Krasimir Baylov Code *****/
-//		try {
-//			List<Packet> packets = interfacePacketReader.getPackets();
-//
-//			Properties prop = new Properties();
-//			prop.load(new FileInputStream("SIP_MASK.properties"));
-//
-//			SipManager sipManager = new SipManager(prop);
-//
-//			if (packets != null) {
-//				for (Packet currPacket : packets) {
-//					System.out.println("-----\n old:");
-//					System.out.print(new String(currPacket.data));
-//					byte[] modifiedSipPacket = sipManager
-//							.modifyPacket(currPacket.data);
-//
-//					System.out.println("-----\n new: ");
-//
-//					System.out.print(new String(modifiedSipPacket));
-//					System.out.println("-----");
-//				}
-//			}
-//
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		// try {
+		// List<Packet> packets = interfacePacketReader.getPackets();
+		//
+		// Properties prop = new Properties();
+		// prop.load(new FileInputStream("SIP_MASK.properties"));
+		//
+		// SipManager sipManager = new SipManager(prop);
+		//
+		// if (packets != null) {
+		// for (Packet currPacket : packets) {
+		// System.out.println("-----\n old:");
+		// System.out.print(new String(currPacket.data));
+		// byte[] modifiedSipPacket = sipManager
+		// .modifyPacket(currPacket.data);
+		//
+		// System.out.println("-----\n new: ");
+		//
+		// System.out.print(new String(modifiedSipPacket));
+		// System.out.println("-----");
+		// }
+		// }
+		//
+		// } catch (FileNotFoundException e) {
+		// e.printStackTrace();
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// }
 	}
 
 	private static NetworkInterface chooseDevice() {
@@ -128,7 +128,7 @@ public class PCapFilterStarter {
 			}
 		}
 		return devices[index];
-//		return devices[1];
+		// return devices[1];
 	}
 
 }
