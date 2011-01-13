@@ -61,7 +61,7 @@ public class PCapMenuHandler {
 		}
 
 		IPacketReader filePacketReader = PacketReaderFactory.getPacketReader(
-				fileName, PCapFilterConstants.SIP_FILTER, 11111);
+				fileName, PCapFilterConstants.SIP_FILTER);
 		return filePacketReader;
 	}
 
@@ -71,8 +71,7 @@ public class PCapMenuHandler {
 
 		IPacketReader networkPacketReader = PacketReaderFactory
 				.getPacketReader(networkInterface,
-						PCapFilterConstants.SIP_FILTER,
-						(timeoutSeconds * 100L));
+						PCapFilterConstants.SIP_FILTER);
 
 		return networkPacketReader;
 	}

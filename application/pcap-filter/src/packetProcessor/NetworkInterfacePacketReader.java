@@ -3,6 +3,8 @@ package packetProcessor;
 import java.io.IOException;
 import java.util.List;
 
+import utils.StatisticPrinter;
+
 import jpcap.JpcapCaptor;
 import jpcap.NetworkInterface;
 import jpcap.packet.Packet;
@@ -10,13 +12,11 @@ import jpcap.packet.Packet;
 public class NetworkInterfacePacketReader extends AbstractPacketReader
 		implements Runnable {
 
-	private NetworkInterfacePacketReceiver packetAnalyzer;
-	private long timeOutInMillis;
+	private PacketAnalyzer packetAnalyzer;
 
 	public NetworkInterfacePacketReader(NetworkInterface networkInterface,
-			String packetFilterRule, long timeOutInMillis) {
-		this.timeOutInMillis = timeOutInMillis;
-		this.packetAnalyzer = new NetworkInterfacePacketReceiver();
+			String packetFilterRule) {
+		this.packetAnalyzer = new PacketAnalyzer();
 		try {
 			JpcapCaptor captor = JpcapCaptor.openDevice(networkInterface,
 					65535, false, 0);
@@ -33,8 +33,8 @@ public class NetworkInterfacePacketReader extends AbstractPacketReader
 	}
 
 	public void startReadingPackets() {
-		Thread t = new Thread(this);
-		t.start();
+		Thread thread = new Thread(this);
+		thread.start();
 		Thread.yield();
 	}
 
@@ -47,26 +47,19 @@ public class NetworkInterfacePacketReader extends AbstractPacketReader
 	@Override
 	public void run() {
 		JpcapCaptor captor = getCaptor();
-		long startTime = System.currentTimeMillis();
-		long currentTime = startTime;
-		long duration = 0L;
-		int numberOfCapturedPackets = 0;
-		int result = 0;
-		while (true) {
-			result = captor.processPacket(1, packetAnalyzer);
-			if (result != 0) {
-				numberOfCapturedPackets++;
-			}
-			currentTime = System.currentTimeMillis();
-			duration = currentTime - startTime;
-			if (duration > timeOutInMillis) {
-				break;
-			}
-		}
+		captor.setNonBlockingMode(true);
+		captor.loopPacket(-1, packetAnalyzer);
 		captor.updateStat();
-		System.out.println("Caputed: " + numberOfCapturedPackets
-				+ " received: " + captor.received_packets + " dropped:"
-				+ captor.dropped_packets);
-		captor.close();
+		StatisticPrinter.printStatistics(captor, packetAnalyzer
+				.getNetworkSessions(), packetAnalyzer
+				.getNumberOfCapturedPackets());
 	}
+
+	@Override
+	public void stopReadingPackets() {
+		JpcapCaptor captor = getCaptor();
+		captor.breakLoop();
+		captor.close();		
+	}
+
 }

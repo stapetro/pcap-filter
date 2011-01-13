@@ -13,6 +13,7 @@ import jpcap.packet.Packet;
 import manipulator.SipManager;
 import packetProcessor.IPacketReader;
 import packetProcessor.IPacketWriter;
+import packetProcessor.NetworkInterfacePacketReader;
 import packetProcessor.PacketReaderFactory;
 import constants.PCapFilterConstants;
 
@@ -28,22 +29,25 @@ public class PCapFilterStarter {
 	public static void main(String[] args) {
 		/**** Stanislav Petrov Code *****/
 
-		int timeOutInSec = 5;
+		int timeOutInSec = 3;
 		String outputSipFile = "sip_session_captured.jpcap";
 
-//		NetworkInterface chosenInterface = chooseDevice();
-//		IPacketReader interfacePacketReader = PacketReaderFactory
-//				.getPacketReader(chosenInterface,
-//						PCapFilterConstants.TCP_IP_FILTER,
-//						(timeOutInSec * 1000L));
-		 IPacketReader interfacePacketReader = PacketReaderFactory
-		 .getPacketReader(outputSipFile, PCapFilterConstants.SIP_FILTER, (timeOutInSec * 1000L));
+		NetworkInterface chosenInterface = chooseDevice();
+		IPacketReader interfacePacketReader = PacketReaderFactory
+				.getPacketReader(chosenInterface,
+						PCapFilterConstants.TCP_IP_FILTER);
+//		 IPacketReader interfacePacketReader = PacketReaderFactory
+//		 .getPacketReader(outputSipFile, PCapFilterConstants.SIP_FILTER, (timeOutInSec * 1000L));
 
 		System.out.println("Start listening for packets...");
 		// System.out.println("Start listening for packets...");
 		interfacePacketReader.startReadingPackets();
 		JpcapCaptor captor = interfacePacketReader.getCaptor();
 		IPacketWriter packetWriter = null;
+		Scanner input = new Scanner(System.in);
+		System.out.print("Enter sth to stop: ");
+		String line = input.nextLine();
+		interfacePacketReader.stopReadingPackets();		
 		// try {
 		// JpcapWriter writer = JpcapWriter
 		// .openDumpFile(captor, outputSipFile);
@@ -66,33 +70,33 @@ public class PCapFilterStarter {
 		// interfacePacketReader.close();
 
 		/**** Krasimir Baylov Code *****/
-		try {
-			List<Packet> packets = interfacePacketReader.getPackets();
-
-			Properties prop = new Properties();
-			prop.load(new FileInputStream("SIP_MASK.properties"));
-
-			SipManager sipManager = new SipManager(prop);
-
-			if (packets != null) {
-				for (Packet currPacket : packets) {
-					System.out.println("-----\n old:");
-					System.out.print(new String(currPacket.data));
-					byte[] modifiedSipPacket = sipManager
-							.modifyPacket(currPacket.data);
-
-					System.out.println("-----\n new: ");
-
-					System.out.print(new String(modifiedSipPacket));
-					System.out.println("-----");
-				}
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			List<Packet> packets = interfacePacketReader.getPackets();
+//
+//			Properties prop = new Properties();
+//			prop.load(new FileInputStream("SIP_MASK.properties"));
+//
+//			SipManager sipManager = new SipManager(prop);
+//
+//			if (packets != null) {
+//				for (Packet currPacket : packets) {
+//					System.out.println("-----\n old:");
+//					System.out.print(new String(currPacket.data));
+//					byte[] modifiedSipPacket = sipManager
+//							.modifyPacket(currPacket.data);
+//
+//					System.out.println("-----\n new: ");
+//
+//					System.out.print(new String(modifiedSipPacket));
+//					System.out.println("-----");
+//				}
+//			}
+//
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	private static NetworkInterface chooseDevice() {
@@ -124,6 +128,7 @@ public class PCapFilterStarter {
 			}
 		}
 		return devices[index];
+//		return devices[1];
 	}
 
 }

@@ -1,26 +1,31 @@
 package packetProcessor;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.LinkedList;
 import java.util.List;
 
+import utils.StatisticPrinter;
+
 import jpcap.JpcapCaptor;
 import jpcap.packet.Packet;
+import jpcap.packet.UDPPacket;
 
 public class FilePacketReader extends AbstractPacketReader implements Runnable {
 
 	private List<Packet> packetsList;
+	private PacketAnalyzer packetAnalyzer;
 
 	public FilePacketReader(String fileName, String packetFilterRule) {
 		try {
 			JpcapCaptor captor = JpcapCaptor.openFile(fileName);
 			setCaptor(captor);
 			setPacketFilterRule(packetFilterRule);
-
 			packetsList = new LinkedList<Packet>();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		this.packetAnalyzer = new PacketAnalyzer();
 	}
 
 	@Override
@@ -46,7 +51,7 @@ public class FilePacketReader extends AbstractPacketReader implements Runnable {
 		JpcapCaptor captor = getCaptor();
 		if (captor != null) {
 			Packet packet = null;
-			int capturedPacks = 0;
+			int numberOfCapturedPackets = 0;
 			while (true) {
 				// read a packet from the opened file
 				packet = captor.getPacket();
@@ -54,15 +59,21 @@ public class FilePacketReader extends AbstractPacketReader implements Runnable {
 				if (packet == null || packet == Packet.EOF) {
 					break;
 				}
+				packetAnalyzer.receivePacket(packet);
 				packetsList.add(packet);
-				capturedPacks++;
+				numberOfCapturedPackets++;
 			}
 			captor.updateStat();
-			System.out.println("Received packs: " + captor.received_packets
-					+ ", Dropped packs: " + captor.dropped_packets
-					+ " Captured: " + capturedPacks);
+			StatisticPrinter.printStatistics(captor, packetAnalyzer
+					.getNetworkSessions(), numberOfCapturedPackets);			
 			captor.close();
-		}		
+		}
+	}
+
+	@Override
+	public void stopReadingPackets() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -16,7 +16,7 @@ public class PacketReaderFactory {
 	 * @return <code>IPacketReader</code> for reading packets
 	 */
 	public static IPacketReader getPacketReader(Object source,
-			String packetFilterRule, long millis) {
+			String packetFilterRule) {
 		if (source instanceof String) {
 			String fileName = (String) source;
 			FilePacketReader filePacketReader = new FilePacketReader(fileName,
@@ -25,7 +25,7 @@ public class PacketReaderFactory {
 
 		} else if (source instanceof NetworkInterface) {
 			NetworkInterface networkInterface = (NetworkInterface) source;
-			NetworkInterfacePacketReader networkInterfacePacketReader = new NetworkInterfacePacketReader(networkInterface, packetFilterRule, (millis));
+			NetworkInterfacePacketReader networkInterfacePacketReader = new NetworkInterfacePacketReader(networkInterface, packetFilterRule);
 			return networkInterfacePacketReader;
 		}
 		return null;
