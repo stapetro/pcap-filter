@@ -1,19 +1,11 @@
 package main;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
 import java.util.Scanner;
 
 import jpcap.JpcapCaptor;
 import jpcap.NetworkInterface;
-import jpcap.packet.Packet;
-import manipulator.SipManager;
 import packetProcessor.IPacketReader;
 import packetProcessor.IPacketWriter;
-import packetProcessor.NetworkInterfacePacketReader;
 import packetProcessor.PacketReaderFactory;
 import constants.PCapFilterConstants;
 

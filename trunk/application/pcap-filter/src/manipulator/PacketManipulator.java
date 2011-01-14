@@ -7,7 +7,7 @@ import java.util.Properties;
  * be manipulated are defined in the properties file that goes in the
  * constructor.
  */
-public class SipManager {
+public class PacketManipulator {
 
 	/**
 	 * String separating the header from its value.
@@ -25,7 +25,7 @@ public class SipManager {
 	 * @param prop
 	 *            properties file defining the rules for manipulating packets
 	 */
-	public SipManager(Properties prop) {
+	public PacketManipulator(Properties prop) {
 		rules = prop;
 	}
 

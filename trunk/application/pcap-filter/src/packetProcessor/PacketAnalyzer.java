@@ -12,7 +12,7 @@ import jpcap.PacketReceiver;
 import jpcap.packet.Packet;
 import jpcap.packet.TCPPacket;
 import jpcap.packet.UDPPacket;
-import manipulator.SipManager;
+import manipulator.PacketManipulator;
 import constants.PCapFilterConstants;
 
 public class PacketAnalyzer implements PacketReceiver {
@@ -21,7 +21,7 @@ public class PacketAnalyzer implements PacketReceiver {
 	private List<NetworkSession> networkSessions;
 	private int numberOfCapturedPackets;
 	private int numberOfModifiedPackets;
-	private SipManager sipManager;
+	private PacketManipulator sipManager;
 
 	public PacketAnalyzer() {
 		this.receivedPackets = new ArrayList<Packet>();
@@ -30,7 +30,7 @@ public class PacketAnalyzer implements PacketReceiver {
 		String propFileName = "SIP_MASK.properties";
 		try {
 			prop.load(new FileInputStream(propFileName));
-			sipManager = new SipManager(prop);
+			sipManager = new PacketManipulator(prop);
 		} catch (FileNotFoundException e) {
 			System.out.println("Properties file '" + propFileName
 					+ "' is not found.");
