@@ -12,5 +12,7 @@ public class PCapFilterConstants {
 	public static final String TCP_IP_FILTER = "ip and tcp";
 	
 	public static final String HTTP_FILTER = "http";
+	
+	public static final int INVALID_PORT_NUMBER = -1;
 
 }

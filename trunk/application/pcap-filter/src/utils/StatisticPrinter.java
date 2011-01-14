@@ -8,7 +8,8 @@ import packetProcessor.NetworkSession;
 public class StatisticPrinter {
 
 	public static void printStatistics(JpcapCaptor captor,
-			List<NetworkSession> networkSessions, int numberOfCapturedPackets) {
+			List<NetworkSession> networkSessions, int numberOfCapturedPackets,
+			int numberOfModifiedPackets) {
 		StringBuilder statistics = new StringBuilder("Statistics:\n");
 		int numberOfCapturedSessions = networkSessions.size();
 		statistics.append("Sessions: " + numberOfCapturedSessions + "\n");
@@ -22,9 +23,9 @@ public class StatisticPrinter {
 					+ currentSession.getDestPort() + ")\nPackets: "
 					+ currentSession.getNumberOfPackets() + "\n");
 		}
-		statistics.append("Caputed: " + numberOfCapturedPackets/* + " received: "
+		statistics.append("========Summary==========\ncaputed: " + numberOfCapturedPackets + " received: "
 				+ captor.received_packets + " dropped:"
-				+ captor.dropped_packets + "\n"*/);
+				+ captor.dropped_packets + " modified: " + numberOfModifiedPackets + "\n=========================\n");
 		System.out.println(statistics);
 	}
 }

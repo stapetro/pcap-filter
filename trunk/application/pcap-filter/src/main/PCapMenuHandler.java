@@ -31,7 +31,7 @@ public class PCapMenuHandler {
 		System.out.println("type \"network\" for network interface");
 		System.out.println("type \"exit\" for exit");
 
-		String choice = input.next();
+		String choice = input.nextLine();
 		IPacketReader source = getSourceByChoice(choice);
 
 		PCapServer server = new PCapServer(source, null);
@@ -67,12 +67,9 @@ public class PCapMenuHandler {
 
 	private IPacketReader getNetworkInterfaceReader() {
 		NetworkInterface networkInterface = chooseDevice();
-		int timeoutSeconds = getTimeout();
-
 		IPacketReader networkPacketReader = PacketReaderFactory
 				.getPacketReader(networkInterface,
 						PCapFilterConstants.SIP_FILTER);
-
 		return networkPacketReader;
 	}
 
