@@ -16,16 +16,14 @@ public class StatisticPrinter {
 		NetworkSession currentSession = null;
 		for (int sessionIndex = 0; sessionIndex < numberOfCapturedSessions; sessionIndex++) {
 			currentSession = networkSessions.get(sessionIndex);
-			statistics.append("Session " + sessionIndex + "\n (srcIP="
-					+ currentSession.getSourceIPAddr() + ", destIP="
-					+ currentSession.getDestIPAddr() + ", srcPort="
-					+ currentSession.getSourcePort() + ", destPort="
-					+ currentSession.getDestPort() + ")\nPackets: "
-					+ currentSession.getNumberOfPackets() + "\n");
+			statistics.append("Session " + sessionIndex + "\n" + currentSession
+					+ "\n");
 		}
-		statistics.append("========Summary==========\ncaputed: " + numberOfCapturedPackets + " received: "
+		statistics.append("========Summary==========\ncaputed: "
+				+ numberOfCapturedPackets + " received: "
 				+ captor.received_packets + " dropped:"
-				+ captor.dropped_packets + " modified: " + numberOfModifiedPackets + "\n=========================\n");
+				+ captor.dropped_packets + " modified: "
+				+ numberOfModifiedPackets + "\n=========================\n");
 		System.out.println(statistics);
 	}
 }

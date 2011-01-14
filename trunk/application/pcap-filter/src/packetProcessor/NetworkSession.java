@@ -2,6 +2,9 @@ package packetProcessor;
 
 import java.net.InetAddress;
 
+import constants.NetworkSessionType;
+import constants.PCapFilterConstants;
+
 public class NetworkSession {
 
 	private InetAddress sourceIPAddr;
@@ -9,6 +12,7 @@ public class NetworkSession {
 	private int sourcePort;
 	private int destPort;
 	private int numberOfPackets;
+	private NetworkSessionType type;
 
 	public NetworkSession(InetAddress sourceIPAddr, InetAddress destIPAddr,
 			int sourcePort, int destPort) {
@@ -16,6 +20,7 @@ public class NetworkSession {
 		this.destIPAddr = destIPAddr;
 		this.sourcePort = sourcePort;
 		this.destPort = destPort;
+		initType();
 	}
 
 	public void incrementNumberOfPackets() {
@@ -42,6 +47,10 @@ public class NetworkSession {
 		return destPort;
 	}
 
+	public NetworkSessionType getType() {
+		return type;
+	}
+
 	@Override
 	public boolean equals(Object otherSession) {
 		boolean result = false;
@@ -60,8 +69,27 @@ public class NetworkSession {
 
 	@Override
 	public String toString() {
-		return "src: " + sourceIPAddr + ", dest: " + destIPAddr + ", srcPort: "
-				+ sourcePort + ", dest: " + destPort;
+		return "(type=" + type + ", srcIP=" + sourceIPAddr + ", destIP="
+				+ destIPAddr + ", srcPort=" + sourcePort + ", destPort="
+				+ destPort + ")\npackets in session: " + numberOfPackets;
+	}
+
+	private void initType() {
+		if (isHTTPSession(sourcePort) || isHTTPSession(destPort)) {
+			type = NetworkSessionType.HTTP_SESSION;
+		} else if (isSIPSession(sourcePort) || isSIPSession(destPort)) {
+			type = NetworkSessionType.SIP_SESSION;
+		} else {
+			type = NetworkSessionType.OTHER_SESSION;
+		}
+	}
+
+	private boolean isHTTPSession(int portNumber) {
+		return portNumber == PCapFilterConstants.HTTP_TCP_PORT_NUMBER;
+	}
+
+	private boolean isSIPSession(int portNumber) {
+		return (portNumber >= PCapFilterConstants.SIP_UDP_PORT_NUMBER_MIN && portNumber <= PCapFilterConstants.SIP_UDP_PORT_NUMBER_MAX);
 	}
 
 }
