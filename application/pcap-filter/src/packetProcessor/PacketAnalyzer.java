@@ -8,14 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import constants.PCapFilterConstants;
-
-import manipulator.SipManager;
-
 import jpcap.PacketReceiver;
 import jpcap.packet.Packet;
 import jpcap.packet.TCPPacket;
 import jpcap.packet.UDPPacket;
+import manipulator.SipManager;
+import constants.PCapFilterConstants;
 
 public class PacketAnalyzer implements PacketReceiver {
 
@@ -33,7 +31,7 @@ public class PacketAnalyzer implements PacketReceiver {
 		try {
 			prop.load(new FileInputStream(propFileName));
 			sipManager = new SipManager(prop);
-		} catch (FileNotFoundException e) {			
+		} catch (FileNotFoundException e) {
 			System.out.println("Properties file '" + propFileName
 					+ "' is not found.");
 		} catch (IOException e) {
@@ -49,51 +47,54 @@ public class PacketAnalyzer implements PacketReceiver {
 	public int getNumberOfCapturedPackets() {
 		return numberOfCapturedPackets;
 	}
-	
+
 	public int getNumberOfModifiedPackets() {
 		return numberOfModifiedPackets;
-	}	
+	}
 
 	@Override
 	public void receivePacket(Packet packet) {
 		numberOfCapturedPackets++;
 		// analyze packet
 		handleTransportPacket(packet);
+		// write packet here
 		this.receivedPackets.add(packet);
 	}
 
 	public List<NetworkSession> getNetworkSessions() {
 		return networkSessions;
 	}
-	
+
 	private void handleTransportPacket(Packet packet) {
-		InetAddress sourceIPAddr = null;
-		InetAddress destIPAddr = null;
-		int sourcePort = PCapFilterConstants.INVALID_PORT_NUMBER;
-		int destPort = PCapFilterConstants.INVALID_PORT_NUMBER;
-		boolean transportPacketCaptured = false;
-		if (packet instanceof UDPPacket) {
-			UDPPacket udpPacket = (UDPPacket) packet;
-			sourceIPAddr = udpPacket.src_ip;
-			destIPAddr = udpPacket.dst_ip;
-			sourcePort = udpPacket.src_port;
-			destPort = udpPacket.dst_port;
-			transportPacketCaptured = true;
-		} else if (packet instanceof TCPPacket) {
-			TCPPacket tcpPacket = (TCPPacket) packet;
-			sourceIPAddr = tcpPacket.src_ip;
-			destIPAddr = tcpPacket.dst_ip;
-			sourcePort = tcpPacket.src_port;
-			destPort = tcpPacket.dst_port;
-			transportPacketCaptured = true;
+		if (packet != Packet.EOF) {
+			InetAddress sourceIPAddr = null;
+			InetAddress destIPAddr = null;
+			int sourcePort = PCapFilterConstants.INVALID_PORT_NUMBER;
+			int destPort = PCapFilterConstants.INVALID_PORT_NUMBER;
+			boolean transportPacketCaptured = false;
+			if (packet instanceof UDPPacket) {
+				UDPPacket udpPacket = (UDPPacket) packet;
+				sourceIPAddr = udpPacket.src_ip;
+				destIPAddr = udpPacket.dst_ip;
+				sourcePort = udpPacket.src_port;
+				destPort = udpPacket.dst_port;
+				transportPacketCaptured = true;
+			} else if (packet instanceof TCPPacket) {
+				TCPPacket tcpPacket = (TCPPacket) packet;
+				sourceIPAddr = tcpPacket.src_ip;
+				destIPAddr = tcpPacket.dst_ip;
+				sourcePort = tcpPacket.src_port;
+				destPort = tcpPacket.dst_port;
+				transportPacketCaptured = true;
+			}
+			if (transportPacketCaptured == true) {
+				isNetworkSessionExists(sourceIPAddr, destIPAddr, sourcePort,
+						destPort);
+				byte[] newPacketData = sipManager.modifyPacket(packet.data);
+				packet.data = newPacketData;
+				numberOfModifiedPackets++;
+			}
 		}
-		if(transportPacketCaptured == true) {
-			isNetworkSessionExists(sourceIPAddr, destIPAddr,
-					sourcePort, destPort);		
-			byte[] newPacketData = sipManager.modifyPacket(packet.data);
-			packet.data = newPacketData;
-			numberOfModifiedPackets++;
-		}		
 	}
 
 	/**
@@ -112,8 +113,6 @@ public class PacketAnalyzer implements PacketReceiver {
 				destIPAddr, sourcePort, destPort);
 		if (networkSessions.size() > 0) {
 			for (NetworkSession session : networkSessions) {
-//				 System.out.println("Other: " + otherSession + "\nCurrent: "
-//				 + session);
 				if (otherSession.equals(session)) {
 					session.incrementNumberOfPackets();
 					return true;

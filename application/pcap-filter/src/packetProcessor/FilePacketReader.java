@@ -1,16 +1,13 @@
 package packetProcessor;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 
 import jpcap.JpcapCaptor;
 import jpcap.packet.Packet;
 import utils.StatisticPrinter;
 
-public class FilePacketReader extends AbstractPacketReader implements Runnable {
+public class FilePacketReader extends AbstractPacketReader {
 
-	private List<Packet> packetsList;
 	private PacketAnalyzer packetAnalyzer;
 
 	public FilePacketReader(String fileName, String packetFilterRule) {
@@ -18,29 +15,10 @@ public class FilePacketReader extends AbstractPacketReader implements Runnable {
 			JpcapCaptor captor = JpcapCaptor.openFile(fileName);
 			setCaptor(captor);
 			setPacketFilterRule(packetFilterRule);
-			packetsList = new LinkedList<Packet>();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		this.packetAnalyzer = new PacketAnalyzer();
-	}
-
-	@Override
-	public void startReadingPackets() {
-		Thread thread = new Thread(this);
-		thread.start();
-		Thread.yield();
-	}
-
-	public Packet readPacket() {
-		return null;
-		// TODO implement
-	}
-
-	@Override
-	public List<Packet> getPackets() {
-		// TODO think if we should keep this
-		return packetsList;
 	}
 
 	@Override
@@ -56,9 +34,8 @@ public class FilePacketReader extends AbstractPacketReader implements Runnable {
 					break;
 				}
 				packetAnalyzer.receivePacket(packet);
-				packetsList.add(packet);
 			}
-			captor.updateStat();
+			// captor.updateStat();
 			StatisticPrinter.printStatistics(captor, packetAnalyzer
 					.getNetworkSessions(), packetAnalyzer
 					.getNumberOfCapturedPackets(), packetAnalyzer
@@ -69,8 +46,7 @@ public class FilePacketReader extends AbstractPacketReader implements Runnable {
 
 	@Override
 	public void stopReadingPackets() {
-		// TODO Auto-generated method stub
-
+		// do nothing because reading packets from file stops automatically
 	}
 
 }

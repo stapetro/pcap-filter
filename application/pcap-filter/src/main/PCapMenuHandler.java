@@ -96,7 +96,7 @@ public class PCapMenuHandler {
 		}
 
 		IPacketReader filePacketReader = PacketReaderFactory.getPacketReader(
-				fileName, PCapFilterConstants.SIP_FILTER);
+				fileName, PCapFilterConstants.HTTP_FILTER);
 		return filePacketReader;
 	}
 
@@ -104,7 +104,7 @@ public class PCapMenuHandler {
 		NetworkInterface networkInterface = chooseDevice();
 		IPacketReader networkPacketReader = PacketReaderFactory
 				.getPacketReader(networkInterface,
-						PCapFilterConstants.SIP_FILTER);
+						PCapFilterConstants.HTTP_FILTER);
 		return networkPacketReader;
 	}
 

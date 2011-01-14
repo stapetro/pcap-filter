@@ -8,7 +8,7 @@ import jpcap.JpcapCaptor;
  * Represents common method implementations.
  *
  */
-public abstract class AbstractPacketReader implements IPacketReader {
+public abstract class AbstractPacketReader implements IPacketReader, Runnable {
 
 	private String packetFilterRule;
 
@@ -37,12 +37,11 @@ public abstract class AbstractPacketReader implements IPacketReader {
 			}
 		}
 	}
-
+	
 	@Override
-	public void close() {
-		if (this.captor != null) {
-			this.captor.close();
-		}
+	public void startReadingPackets() {
+		Thread thread = new Thread(this);
+		thread.start();
+		Thread.yield();
 	}
-
 }
