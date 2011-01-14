@@ -9,11 +9,9 @@ import packetProcessor.NetworkInterfacePacketReader;
 public class PCapServer {
 
 	private IPacketReader reader;
-	private IPacketWriter writer;
 
-	public PCapServer(IPacketReader readerInstance, IPacketWriter writerInstance) {
+	public PCapServer(IPacketReader readerInstance) {
 		this.reader = readerInstance;
-		this.writer = writerInstance;
 	}
 
 	public void start() {

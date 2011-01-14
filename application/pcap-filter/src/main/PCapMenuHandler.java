@@ -64,7 +64,8 @@ public class PCapMenuHandler {
 			IPacketWriter destination = getDestinationByChoice(
 					destinationChoice, source.getCaptor());
 
-			PCapServer server = new PCapServer(source, destination);
+			source.setWriter(destination);
+			PCapServer server = new PCapServer(source);
 			server.start();
 		} catch (IOException ioEx) {
 			System.err.print("IO error ocured...");
@@ -96,7 +97,7 @@ public class PCapMenuHandler {
 		}
 
 		IPacketReader filePacketReader = PacketReaderFactory.getPacketReader(
-				fileName, PCapFilterConstants.HTTP_FILTER);
+				fileName, PCapFilterConstants.SIP_FILTER);
 		return filePacketReader;
 	}
 
@@ -104,7 +105,7 @@ public class PCapMenuHandler {
 		NetworkInterface networkInterface = chooseDevice();
 		IPacketReader networkPacketReader = PacketReaderFactory
 				.getPacketReader(networkInterface,
-						PCapFilterConstants.HTTP_FILTER);
+						PCapFilterConstants.SIP_FILTER);
 		return networkPacketReader;
 	}
 

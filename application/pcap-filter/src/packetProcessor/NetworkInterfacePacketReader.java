@@ -42,4 +42,8 @@ public class NetworkInterfacePacketReader extends AbstractPacketReader {
 		captor.close();
 	}
 
+	@Override
+	public void setWriter(IPacketWriter writer) {
+		packetAnalyzer.setWriter(writer);
+	}
 }
