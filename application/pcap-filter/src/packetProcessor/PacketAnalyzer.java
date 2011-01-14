@@ -1,8 +1,16 @@
 package packetProcessor;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+
+import constants.PCapFilterConstants;
+
+import manipulator.SipManager;
 
 import jpcap.PacketReceiver;
 import jpcap.packet.Packet;
@@ -14,48 +22,78 @@ public class PacketAnalyzer implements PacketReceiver {
 	private List<Packet> receivedPackets;
 	private List<NetworkSession> networkSessions;
 	private int numberOfCapturedPackets;
-
-	public int getNumberOfCapturedPackets() {
-		return numberOfCapturedPackets;
-	}
+	private int numberOfModifiedPackets;
+	private SipManager sipManager;
 
 	public PacketAnalyzer() {
 		this.receivedPackets = new ArrayList<Packet>();
 		this.networkSessions = new ArrayList<NetworkSession>();
+		Properties prop = new Properties();
+		String propFileName = "SIP_MASK.properties";
+		try {
+			prop.load(new FileInputStream(propFileName));
+			sipManager = new SipManager(prop);
+		} catch (FileNotFoundException e) {			
+			System.out.println("Properties file '" + propFileName
+					+ "' is not found.");
+		} catch (IOException e) {
+			System.out.println("Properties file '" + propFileName
+					+ "' cannot be loaded.");
+		}
 	}
 
 	public List<Packet> getReceivedPackets() {
 		return receivedPackets;
 	}
 
+	public int getNumberOfCapturedPackets() {
+		return numberOfCapturedPackets;
+	}
+	
+	public int getNumberOfModifiedPackets() {
+		return numberOfModifiedPackets;
+	}	
+
 	@Override
 	public void receivePacket(Packet packet) {
 		numberOfCapturedPackets++;
 		// analyze packet
-		if (packet instanceof UDPPacket) {
-			// System.out.println(packet);
-			UDPPacket udpPacket = (UDPPacket) packet;
-			InetAddress sourceIPAddr = udpPacket.src_ip;
-			InetAddress destIPAddr = udpPacket.dst_ip;
-			int sourcePort = udpPacket.src_port;
-			int destPort = udpPacket.dst_port;
-			boolean result = isNetworkSessionExists(sourceIPAddr, destIPAddr,
-					sourcePort, destPort);
-		} else 	if (packet instanceof TCPPacket) {
-			// System.out.println(packet);
-			TCPPacket tcpPacket = (TCPPacket)packet;
-			InetAddress sourceIPAddr = tcpPacket.src_ip;
-			InetAddress destIPAddr = tcpPacket.dst_ip;
-			int sourcePort = tcpPacket.src_port;
-			int destPort = tcpPacket.dst_port;
-			boolean result = isNetworkSessionExists(sourceIPAddr, destIPAddr,
-					sourcePort, destPort);
-		}
+		handleTransportPacket(packet);
 		this.receivedPackets.add(packet);
 	}
 
 	public List<NetworkSession> getNetworkSessions() {
 		return networkSessions;
+	}
+	
+	private void handleTransportPacket(Packet packet) {
+		InetAddress sourceIPAddr = null;
+		InetAddress destIPAddr = null;
+		int sourcePort = PCapFilterConstants.INVALID_PORT_NUMBER;
+		int destPort = PCapFilterConstants.INVALID_PORT_NUMBER;
+		boolean transportPacketCaptured = false;
+		if (packet instanceof UDPPacket) {
+			UDPPacket udpPacket = (UDPPacket) packet;
+			sourceIPAddr = udpPacket.src_ip;
+			destIPAddr = udpPacket.dst_ip;
+			sourcePort = udpPacket.src_port;
+			destPort = udpPacket.dst_port;
+			transportPacketCaptured = true;
+		} else if (packet instanceof TCPPacket) {
+			TCPPacket tcpPacket = (TCPPacket) packet;
+			sourceIPAddr = tcpPacket.src_ip;
+			destIPAddr = tcpPacket.dst_ip;
+			sourcePort = tcpPacket.src_port;
+			destPort = tcpPacket.dst_port;
+			transportPacketCaptured = true;
+		}
+		if(transportPacketCaptured == true) {
+			isNetworkSessionExists(sourceIPAddr, destIPAddr,
+					sourcePort, destPort);		
+			byte[] newPacketData = sipManager.modifyPacket(packet.data);
+			packet.data = newPacketData;
+			numberOfModifiedPackets++;
+		}		
 	}
 
 	/**
@@ -74,9 +112,8 @@ public class PacketAnalyzer implements PacketReceiver {
 				destIPAddr, sourcePort, destPort);
 		if (networkSessions.size() > 0) {
 			for (NetworkSession session : networkSessions) {
-//				System.out.println("Other: " + otherSession + "\nCurrent: "
-//						+ session);
-				boolean result = otherSession.equals(session);
+//				 System.out.println("Other: " + otherSession + "\nCurrent: "
+//				 + session);
 				if (otherSession.equals(session)) {
 					session.incrementNumberOfPackets();
 					return true;

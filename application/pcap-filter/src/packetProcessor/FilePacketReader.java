@@ -1,15 +1,12 @@
 package packetProcessor;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.LinkedList;
 import java.util.List;
 
-import utils.StatisticPrinter;
-
 import jpcap.JpcapCaptor;
 import jpcap.packet.Packet;
-import jpcap.packet.UDPPacket;
+import utils.StatisticPrinter;
 
 public class FilePacketReader extends AbstractPacketReader implements Runnable {
 
@@ -51,7 +48,6 @@ public class FilePacketReader extends AbstractPacketReader implements Runnable {
 		JpcapCaptor captor = getCaptor();
 		if (captor != null) {
 			Packet packet = null;
-			int numberOfCapturedPackets = 0;
 			while (true) {
 				// read a packet from the opened file
 				packet = captor.getPacket();
@@ -61,11 +57,12 @@ public class FilePacketReader extends AbstractPacketReader implements Runnable {
 				}
 				packetAnalyzer.receivePacket(packet);
 				packetsList.add(packet);
-				numberOfCapturedPackets++;
 			}
 			captor.updateStat();
 			StatisticPrinter.printStatistics(captor, packetAnalyzer
-					.getNetworkSessions(), numberOfCapturedPackets);			
+					.getNetworkSessions(), packetAnalyzer
+					.getNumberOfCapturedPackets(), packetAnalyzer
+					.getNumberOfModifiedPackets());
 			captor.close();
 		}
 	}
@@ -73,7 +70,7 @@ public class FilePacketReader extends AbstractPacketReader implements Runnable {
 	@Override
 	public void stopReadingPackets() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

@@ -52,7 +52,7 @@ public class NetworkInterfacePacketReader extends AbstractPacketReader
 		captor.updateStat();
 		StatisticPrinter.printStatistics(captor, packetAnalyzer
 				.getNetworkSessions(), packetAnalyzer
-				.getNumberOfCapturedPackets());
+				.getNumberOfCapturedPackets(), packetAnalyzer.getNumberOfModifiedPackets());
 	}
 
 	@Override
