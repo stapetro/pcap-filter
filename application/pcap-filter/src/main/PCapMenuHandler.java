@@ -4,10 +4,14 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import packetProcessor.IPacketReader;
+import packetProcessor.IPacketWriter;
 import packetProcessor.PacketReaderFactory;
+import packetProcessor.PacketWriterFactory;
 import constants.PCapFilterConstants;
 
 import jpcap.JpcapCaptor;
+import jpcap.JpcapSender;
+import jpcap.JpcapWriter;
 import jpcap.NetworkInterface;
 
 public class PCapMenuHandler {
@@ -15,6 +19,7 @@ public class PCapMenuHandler {
 	private static final String FILE = "file";
 	private static final String NETWORK = "network";
 	private static final String EXIT = "exit";
+	private static final String SYSTEM_OUT = "system";
 
 	private Scanner input;
 
@@ -26,16 +31,44 @@ public class PCapMenuHandler {
 	 * User interaction starts here
 	 */
 	public void start() {
-		System.out.println("select input source:");
-		System.out.println("type \"file\" for file");
-		System.out.println("type \"network\" for network interface");
-		System.out.println("type \"exit\" for exit");
+		try {
+			String sourceChoice = "";
+			do {
+				System.out.println("select input source:");
+				System.out.println("type \"file\" for file");
+				System.out.println("type \"network\" for network interface");
+				System.out.println("type \"exit\" for exit");
 
-		String choice = input.nextLine();
-		IPacketReader source = getSourceByChoice(choice);
+				sourceChoice = input.nextLine();
+			} while (sourceChoice.equals(FILE) == false
+					&& sourceChoice.equals(NETWORK) == false
+					&& sourceChoice.equals(EXIT) == false);
 
-		PCapServer server = new PCapServer(source, null);
-		server.start();
+			IPacketReader source = getSourceByChoice(sourceChoice);
+
+			String destinationChoice = "";
+			do {
+				System.out.println("Select packet destination:");
+				System.out.println("type \"file\" for file");
+				System.out.println("type \"network\" for network interface");
+				System.out.println("type \"system\" for System.out");
+				System.out.println("type \"exit\" for exit");
+
+				destinationChoice = input.nextLine();
+			} while (sourceChoice.equals(FILE) == false
+					&& sourceChoice.equals(NETWORK) == false
+					&& sourceChoice.equals(SYSTEM_OUT) == false
+					&& sourceChoice.equals(EXIT) == false);
+
+			IPacketWriter destination = getDestinationByChoice(
+					destinationChoice, source.getCaptor());
+
+			PCapServer server = new PCapServer(source, destination);
+			server.start();
+		} catch (IOException ioEx) {
+			System.err.print("IO error ocured...");
+			ioEx.printStackTrace();
+		}
 	}
 
 	private IPacketReader getSourceByChoice(String choice) {
@@ -48,6 +81,7 @@ public class PCapMenuHandler {
 			System.exit(0);
 		} else {
 			System.out.println("Error: unknown command...");
+			System.exit(1);
 		}
 
 		return source;
@@ -57,7 +91,7 @@ public class PCapMenuHandler {
 		String fileName = "";
 		while (fileName == null || fileName.trim().length() == 0) {
 			System.out.println("Enter file name: ");
-			fileName = input.next();
+			fileName = input.nextLine();
 		}
 
 		IPacketReader filePacketReader = PacketReaderFactory.getPacketReader(
@@ -103,6 +137,51 @@ public class PCapMenuHandler {
 		return devices[index];
 	}
 
+	private IPacketWriter getDestinationByChoice(String choice,
+			JpcapCaptor captor) throws IOException {
+		IPacketWriter writer = null;
+
+		if (choice.equals(FILE)) {
+			writer = getPacketFileWriter(captor);
+		} else if (choice.equals(NETWORK)) {
+			writer = getNetworkInterfacePacketWriter();
+		} else if (choice.equals(SYSTEM_OUT)) {
+			// TODO implement
+		} else if (choice.equals(EXIT)) {
+			System.exit(0);
+		} else {
+			System.out.println("Error: unknown command...");
+			System.exit(1);
+		}
+
+		return writer;
+	}
+
+	private IPacketWriter getPacketFileWriter(JpcapCaptor captor)
+			throws IOException {
+		String fileName = "";
+		while (fileName == null || fileName.trim().length() == 0) {
+			System.out.println("Enter file name: ");
+			fileName = input.nextLine();
+		}
+		JpcapWriter fileWriter = JpcapWriter.openDumpFile(captor, fileName);
+		IPacketWriter filePacketWriter = PacketWriterFactory
+				.getPacketWriter(fileWriter);
+
+		return filePacketWriter;
+	}
+
+	private IPacketWriter getNetworkInterfacePacketWriter() throws IOException {
+		NetworkInterface device = chooseDevice();
+
+		JpcapSender sender = JpcapSender.openDevice(device);
+		IPacketWriter networkWriter = PacketWriterFactory
+				.getPacketWriter(sender);
+
+		return networkWriter;
+	}
+
+	// TODO think if we need to remove this method
 	private int getTimeout() {
 		int timeoutSeconds;
 
