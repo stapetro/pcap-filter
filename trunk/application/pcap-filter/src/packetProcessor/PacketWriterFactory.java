@@ -1,5 +1,7 @@
 package packetProcessor;
 
+import java.io.PrintStream;
+
 import jpcap.JpcapSender;
 import jpcap.JpcapWriter;
 
@@ -16,6 +18,11 @@ public class PacketWriterFactory {
 
 			JpcapWriter writer = (JpcapWriter) destination;
 			return new FilePacketWriter(writer);
+		} else if (destination instanceof PrintStream) {
+			// write packet to the System output
+
+			PrintStream printStream = (PrintStream) destination;
+			return new SystemWriter(printStream);
 		}
 
 		// if no proper destination objects is provided return null

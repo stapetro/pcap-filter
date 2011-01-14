@@ -1,6 +1,7 @@
 package main;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Scanner;
 
 import packetProcessor.IPacketReader;
@@ -146,7 +147,7 @@ public class PCapMenuHandler {
 		} else if (choice.equals(NETWORK)) {
 			writer = getNetworkInterfacePacketWriter();
 		} else if (choice.equals(SYSTEM_OUT)) {
-			// TODO implement
+			writer = getSystemWriter();
 		} else if (choice.equals(EXIT)) {
 			System.exit(0);
 		} else {
@@ -179,6 +180,14 @@ public class PCapMenuHandler {
 				.getPacketWriter(sender);
 
 		return networkWriter;
+	}
+
+	private IPacketWriter getSystemWriter() {
+		PrintStream printStream = System.out;
+
+		IPacketWriter systemWriter = PacketWriterFactory
+				.getPacketWriter(printStream);
+		return systemWriter;
 	}
 
 	// TODO think if we need to remove this method
