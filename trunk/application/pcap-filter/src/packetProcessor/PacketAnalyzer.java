@@ -23,6 +23,11 @@ public class PacketAnalyzer implements PacketReceiver {
 	private int numberOfModifiedPackets;
 	private PacketManipulator sipManager;
 
+	/**
+	 * Used to write every received packet.
+	 */
+	private IPacketWriter writer;
+
 	public PacketAnalyzer() {
 		this.receivedPackets = new ArrayList<Packet>();
 		this.networkSessions = new ArrayList<NetworkSession>();
@@ -57,12 +62,23 @@ public class PacketAnalyzer implements PacketReceiver {
 		numberOfCapturedPackets++;
 		// analyze packet
 		handleTransportPacket(packet);
-		// write packet here
+		writer.writePacket(packet); // write packet
 		this.receivedPackets.add(packet);
+
 	}
 
 	public List<NetworkSession> getNetworkSessions() {
 		return networkSessions;
+	}
+
+	/**
+	 * Sets the writer used to send packets.
+	 * 
+	 * @param packetWriter
+	 *            sends packet to a predefined destination
+	 */
+	public void setWriter(IPacketWriter packetWriter) {
+		this.writer = packetWriter;
 	}
 
 	private void handleTransportPacket(Packet packet) {

@@ -49,4 +49,9 @@ public class FilePacketReader extends AbstractPacketReader {
 		// do nothing because reading packets from file stops automatically
 	}
 
+	@Override
+	public void setWriter(IPacketWriter writer) {
+		packetAnalyzer.setWriter(writer);
+	}
+
 }
