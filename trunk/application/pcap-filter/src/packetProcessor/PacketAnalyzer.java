@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -34,7 +35,7 @@ public class PacketAnalyzer implements PacketReceiver {
 		this.receivedPackets = new ArrayList<Packet>();
 		this.networkSessions = new ArrayList<NetworkSession>();
 	}
-	
+
 	public PacketAnalyzer(String filterRule) {
 		this();
 		initPacketManipulator(filterRule);
@@ -84,11 +85,11 @@ public class PacketAnalyzer implements PacketReceiver {
 				prop.load(new FileInputStream(propFileName));
 				packetManipulator = new PacketManipulator(prop);
 			} catch (FileNotFoundException e) {
-				System.out.println("PacketAnalyzer: Properties file '" + propFileName
-						+ "' is not found.");
+				System.out.println("PacketAnalyzer: Properties file '"
+						+ propFileName + "' is not found.");
 			} catch (IOException e) {
-				System.out.println("PacketAnalyzer: Properties file '" + propFileName
-						+ "' cannot be loaded.");
+				System.out.println("PacketAnalyzer: Properties file '"
+						+ propFileName + "' cannot be loaded.");
 			}
 		}
 	}
@@ -139,10 +140,14 @@ public class PacketAnalyzer implements PacketReceiver {
 				isNetworkSessionExists(sourceIPAddr, destIPAddr, sourcePort,
 						destPort);
 				if (packetManipulator != null) {
-					byte[] newPacketData = packetManipulator.modifyPacket(packet.data);
-					packet.data = newPacketData;
+					byte[] currentPacketData = packet.data;
+					byte[] newPacketData = packetManipulator
+							.modifyPacket(currentPacketData);
+					if (Arrays.equals(currentPacketData, newPacketData) == false) {
+						packet.data = newPacketData;
+						numberOfModifiedPackets++;
+					}
 				}
-				numberOfModifiedPackets++;
 			}
 		}
 	}

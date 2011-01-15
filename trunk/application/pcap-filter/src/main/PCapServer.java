@@ -17,10 +17,9 @@ public class PCapServer {
 		System.out.println("Start listening for packets...");
 		reader.startReadingPackets();
 		if (reader instanceof NetworkInterfacePacketReader) {
-			System.out.print("Enter sth to stop reading: ");
+			System.out.print("Enter something and press enter to stop reading: ");
 			Scanner input = new Scanner(System.in);
 			String stopCommand = input.nextLine();
-			// TODO processing stop command
 			reader.stopReadingPackets();
 		}
 	}
