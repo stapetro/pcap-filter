@@ -4,9 +4,7 @@ import java.util.Scanner;
 
 import jpcap.JpcapCaptor;
 import jpcap.NetworkInterface;
-import packetProcessor.IPacketReader;
-import packetProcessor.IPacketWriter;
-import packetProcessor.PacketReaderFactory;
+import utils.ConfigurationReader;
 import constants.PCapFilterConstants;
 
 /**
@@ -20,26 +18,15 @@ public class PCapFilterStarter {
 	 */
 	public static void main(String[] args) {
 		/**** Stanislav Petrov Code *****/
+		String filterValue = ConfigurationReader.getValue(PCapFilterConstants.FILTER_CONFIG_KEY);
+		System.out.println(filterValue);
 
-		int timeOutInSec = 3;
-		String outputSipFile = "sip_session_captured.jpcap";
-
-		NetworkInterface chosenInterface = chooseDevice();
-		 IPacketReader interfacePacketReader = PacketReaderFactory
-		 .getPacketReader(chosenInterface,
-		 PCapFilterConstants.TCP_IP_FILTER);
+//		NetworkInterface chosenInterface = chooseDevice();
+//		 IPacketReader interfacePacketReader = PacketReaderFactory
+//		 .getPacketReader(chosenInterface,
+//		 PCapFilterConstants.TCP_IP_FILTER);
 //		IPacketReader interfacePacketReader = PacketReaderFactory
 //				.getPacketReader(outputSipFile, PCapFilterConstants.SIP_FILTER);
-
-		System.out.println("Start listening for packets...");
-		// System.out.println("Start listening for packets...");
-		interfacePacketReader.startReadingPackets();
-		JpcapCaptor captor = interfacePacketReader.getCaptor();
-		IPacketWriter packetWriter = null;
-		Scanner input = new Scanner(System.in);
-		System.out.print("Enter sth to stop: ");
-		String line = input.nextLine();
-		interfacePacketReader.stopReadingPackets();
 		// try {
 		// JpcapWriter writer = JpcapWriter
 		// .openDumpFile(captor, outputSipFile);

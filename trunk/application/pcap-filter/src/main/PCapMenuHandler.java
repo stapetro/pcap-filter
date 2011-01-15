@@ -4,16 +4,14 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Scanner;
 
-import packetProcessor.IPacketReader;
-import packetProcessor.IPacketWriter;
-import packetProcessor.PacketReaderFactory;
-import packetProcessor.PacketWriterFactory;
-import constants.PCapFilterConstants;
-
 import jpcap.JpcapCaptor;
 import jpcap.JpcapSender;
 import jpcap.JpcapWriter;
 import jpcap.NetworkInterface;
+import packetProcessor.IPacketReader;
+import packetProcessor.IPacketWriter;
+import packetProcessor.PacketReaderFactory;
+import packetProcessor.PacketWriterFactory;
 
 public class PCapMenuHandler {
 
@@ -96,16 +94,15 @@ public class PCapMenuHandler {
 			fileName = input.nextLine();
 		}
 
-		IPacketReader filePacketReader = PacketReaderFactory.getPacketReader(
-				fileName, PCapFilterConstants.SIP_FILTER);
+		IPacketReader filePacketReader = PacketReaderFactory
+				.getPacketReader(fileName);
 		return filePacketReader;
 	}
 
 	private IPacketReader getNetworkInterfaceReader() {
 		NetworkInterface networkInterface = chooseDevice();
 		IPacketReader networkPacketReader = PacketReaderFactory
-				.getPacketReader(networkInterface,
-						PCapFilterConstants.SIP_FILTER);
+				.getPacketReader(networkInterface);
 		return networkPacketReader;
 	}
 
@@ -189,28 +186,5 @@ public class PCapMenuHandler {
 		IPacketWriter systemWriter = PacketWriterFactory
 				.getPacketWriter(printStream);
 		return systemWriter;
-	}
-
-	// TODO think if we need to remove this method
-	private int getTimeout() {
-		int timeoutSeconds;
-
-		while (true) {
-			System.out.println("Enter timeout in seconds: ");
-			String timeStr = input.nextLine();
-			try {
-				timeoutSeconds = Integer.parseInt(timeStr);
-				if (timeoutSeconds > 0) {
-					break;// breaks only if the parsing was OK
-				} else {
-					System.out
-							.println("You have entered negative value. Please enter positive one!");
-				}
-			} catch (NumberFormatException ex) {
-				System.out.println("wrong number");
-			}
-		}
-
-		return timeoutSeconds;
 	}
 }
