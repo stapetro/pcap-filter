@@ -180,11 +180,9 @@ public class PacketAnalyzer implements PacketReceiver {
 					return true;
 				}
 			}
-			networkSessions.add(otherSession);
-		} else {
-			networkSessions.add(otherSession);
-			otherSession.incrementNumberOfPackets();
 		}
+		networkSessions.add(otherSession);
+		otherSession.incrementNumberOfPackets();
 		return false;
 	}
 }
