@@ -45,6 +45,7 @@ public class FilePacketReader extends AbstractPacketReader {
 					.getNumberOfCapturedPackets(), packetAnalyzer
 					.getNumberOfModifiedPackets());
 			captor.close();
+			packetAnalyzer.closeWriter();
 		}
 	}
 
