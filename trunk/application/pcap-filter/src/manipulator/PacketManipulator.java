@@ -38,8 +38,8 @@ public class PacketManipulator {
 	 *         that the class was initialized with
 	 */
 	public byte[] modifyPacket(byte[] packet) {
-		String sipPacketString = new String(packet);
-		String[] sipElements = sipPacketString.split("\\n");
+		String applicationPacketString = new String(packet);
+		String[] sipElements = applicationPacketString.split("\\n");
 
 		for (int i = 0; i < sipElements.length; i++) {
 			for (Object key : rules.keySet()) {
@@ -52,15 +52,14 @@ public class PacketManipulator {
 			}
 		}
 
-		StringBuilder newSipPacketSb = new StringBuilder();
+		StringBuilder newAppPacketSb = new StringBuilder();
 		for (int i = 0; i < sipElements.length - 1; i++) {
-			newSipPacketSb.append(sipElements[i]);
-			newSipPacketSb.append("\n");
+			newAppPacketSb.append(sipElements[i]);
+			newAppPacketSb.append("\n");
 		}
 		// omit the new line to keen the initial format
-		newSipPacketSb.append(sipElements[sipElements.length - 1]);
-
-		return newSipPacketSb.toString().getBytes();
+		newAppPacketSb.append(sipElements[sipElements.length - 1]);
+		return newAppPacketSb.toString().getBytes();
 	}
 
 	private String rewriteElement(String headerName, String newValue) {
