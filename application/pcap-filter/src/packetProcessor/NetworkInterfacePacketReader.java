@@ -16,9 +16,9 @@ public class NetworkInterfacePacketReader extends AbstractPacketReader {
 			JpcapCaptor captor = JpcapCaptor.openDevice(networkInterface,
 					65535, false, 0);
 			setCaptor(captor);
-			if(packetFilterRule != null) {
+			if (packetFilterRule != null) {
 				setPacketFilterRule(packetFilterRule);
-				this.packetAnalyzer = new PacketAnalyzer(packetFilterRule);				
+				this.packetAnalyzer = new PacketAnalyzer(packetFilterRule);
 			} else {
 				this.packetAnalyzer = new PacketAnalyzer();
 			}
@@ -44,6 +44,8 @@ public class NetworkInterfacePacketReader extends AbstractPacketReader {
 		JpcapCaptor captor = getCaptor();
 		captor.breakLoop();
 		captor.close();
+
+		packetAnalyzer.closeWriter();
 	}
 
 	@Override

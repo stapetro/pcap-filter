@@ -77,6 +77,13 @@ public class PacketAnalyzer implements PacketReceiver {
 		this.writer = packetWriter;
 	}
 
+	/**
+	 * Closes the current writer
+	 */
+	public void closeWriter() {
+		this.writer.close();
+	}
+
 	private void initPacketManipulator(String filterRule) {
 		String propFileName = getPropFileNameByFilterRule(filterRule);
 		if (propFileName != null) {
