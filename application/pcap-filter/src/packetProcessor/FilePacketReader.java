@@ -14,11 +14,15 @@ public class FilePacketReader extends AbstractPacketReader {
 		try {
 			JpcapCaptor captor = JpcapCaptor.openFile(fileName);
 			setCaptor(captor);
-			setPacketFilterRule(packetFilterRule);
+			if (packetFilterRule != null) {
+				setPacketFilterRule(packetFilterRule);
+				this.packetAnalyzer = new PacketAnalyzer(packetFilterRule);
+			} else {
+				this.packetAnalyzer = new PacketAnalyzer();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.packetAnalyzer = new PacketAnalyzer();
 	}
 
 	@Override

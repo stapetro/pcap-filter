@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import utils.ConfigurationReader;
+
 import jpcap.PacketReceiver;
 import jpcap.packet.Packet;
 import jpcap.packet.TCPPacket;
@@ -21,7 +23,7 @@ public class PacketAnalyzer implements PacketReceiver {
 	private List<NetworkSession> networkSessions;
 	private int numberOfCapturedPackets;
 	private int numberOfModifiedPackets;
-	private PacketManipulator sipManager;
+	private PacketManipulator packetManipulator;
 
 	/**
 	 * Used to write every received packet.
@@ -31,18 +33,11 @@ public class PacketAnalyzer implements PacketReceiver {
 	public PacketAnalyzer() {
 		this.receivedPackets = new ArrayList<Packet>();
 		this.networkSessions = new ArrayList<NetworkSession>();
-		Properties prop = new Properties();
-		String propFileName = "SIP_MASK.properties";
-		try {
-			prop.load(new FileInputStream(propFileName));
-			sipManager = new PacketManipulator(prop);
-		} catch (FileNotFoundException e) {
-			System.out.println("Properties file '" + propFileName
-					+ "' is not found.");
-		} catch (IOException e) {
-			System.out.println("Properties file '" + propFileName
-					+ "' cannot be loaded.");
-		}
+	}
+	
+	public PacketAnalyzer(String filterRule) {
+		this();
+		initPacketManipulator(filterRule);
 	}
 
 	public List<Packet> getReceivedPackets() {
@@ -81,6 +76,43 @@ public class PacketAnalyzer implements PacketReceiver {
 		this.writer = packetWriter;
 	}
 
+	private void initPacketManipulator(String filterRule) {
+		String propFileName = getPropFileNameByFilterRule(filterRule);
+		if (propFileName != null) {
+			Properties prop = new Properties();
+			try {
+				prop.load(new FileInputStream(propFileName));
+				packetManipulator = new PacketManipulator(prop);
+			} catch (FileNotFoundException e) {
+				System.out.println("PacketAnalyzer: Properties file '" + propFileName
+						+ "' is not found.");
+			} catch (IOException e) {
+				System.out.println("PacketAnalyzer: Properties file '" + propFileName
+						+ "' cannot be loaded.");
+			}
+		}
+	}
+
+	private String getPropFileNameByFilterRule(String filterRule) {
+		String propFileName = null;
+		if (filterRule != null) {
+			boolean filterContainsMinSIPPort = filterRule.contains(String
+					.valueOf(PCapFilterConstants.SIP_UDP_PORT_NUMBER_MIN));
+			boolean filterContainsMaxSIPPort = filterRule.contains(String
+					.valueOf(PCapFilterConstants.SIP_UDP_PORT_NUMBER_MAX));
+			boolean filterContainsHTTPPort = filterRule.contains(String
+					.valueOf(PCapFilterConstants.HTTP_TCP_PORT_NUMBER));
+			if (filterContainsMinSIPPort || filterContainsMaxSIPPort) {
+				propFileName = ConfigurationReader
+						.getValue(PCapFilterConstants.SIP_MASK_FILE_CONFIG_KEY);
+			} else if (filterContainsHTTPPort) {
+				propFileName = ConfigurationReader
+						.getValue(PCapFilterConstants.HTTP_MASK_FILE_CONFIG_KEY);
+			}
+		}
+		return propFileName;
+	}
+
 	private void handleTransportPacket(Packet packet) {
 		if (packet != Packet.EOF) {
 			InetAddress sourceIPAddr = null;
@@ -106,8 +138,10 @@ public class PacketAnalyzer implements PacketReceiver {
 			if (transportPacketCaptured == true) {
 				isNetworkSessionExists(sourceIPAddr, destIPAddr, sourcePort,
 						destPort);
-				byte[] newPacketData = sipManager.modifyPacket(packet.data);
-				packet.data = newPacketData;
+				if (packetManipulator != null) {
+					byte[] newPacketData = packetManipulator.modifyPacket(packet.data);
+					packet.data = newPacketData;
+				}
 				numberOfModifiedPackets++;
 			}
 		}

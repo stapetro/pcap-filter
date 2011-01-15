@@ -3,7 +3,6 @@ package main;
 import java.util.Scanner;
 
 import packetProcessor.IPacketReader;
-import packetProcessor.IPacketWriter;
 import packetProcessor.NetworkInterfacePacketReader;
 
 public class PCapServer {
@@ -22,8 +21,6 @@ public class PCapServer {
 			Scanner input = new Scanner(System.in);
 			String stopCommand = input.nextLine();
 			// TODO processing stop command
-			System.out
-					.println("Test ================ just before stopping packet reading");
 			reader.stopReadingPackets();
 		}
 	}
